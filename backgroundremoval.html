@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Background Remover</title>
+    <style>
+        * {
+            padding: 0px;
+            margin: 0px;
+            box-sizing: border-box;
+        }
+        a {
+            text-decoration: none;
+            color: #fff;
+        }
+        body {
+            background-color: #87CEEB;
+            font-family: "Poppins", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+      
+        .container {
+            max-width: 400px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .container h1 {
+            color: #fff;
+            font-size: 30px;
+            text-align: center;
+            text-transform: capitalize;
+            margin-bottom: 10px;
+            animation: slideDown 1s ease-in-out;
+        }
+        /* CARD */
+        .container .card {
+            max-width: 80%;
+            margin: auto;
+            margin-top: 30px;
+            background-color: rgba(249, 249, 249, 0.7);
+            border: 2px solid #1E3A61; /* Navy blue */
+            box-shadow: 0px 0px 30px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px 40px;
+            border-radius: 20px;
+            height: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+        .container .card:hover {
+            transform: scale(1.05);
+        }
+        .container .card button {
+            border: none;
+            outline: none;
+            position: relative;
+            background-color: #1E3A61; 
+            padding: 12px 65px;
+            border-radius: 8px;
+            font-size: 15px;
+            color: white;
+            font-weight: 600;
+            transition: 0.3s;
+            box-shadow: 0px 8px 0px 0px #14507A;
+            cursor: pointer;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .container .card button:hover {
+            background-color: #14507A;
+            transform: translateY(-5px);
+        }
+        .container .card button:active {
+            box-shadow: 0px 0px 0px 0px #0C3B58;
+            transform: translateY(5px);
+        }
+        .container .card button input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0px;
+            left: 0px;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .container .card p {
+            color: #1E3A61;
+            font-size: 16px;
+            text-align: center;
+            margin-top: 20px;
+            animation: slideUp 1s ease-in-out;
+        }
+        .container #displayCard img {
+            max-height: 100%;
+            width: auto;
+            border-radius: 5px;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+        .container #displayCard img:hover {
+            transform: scale(1.05);
+        }
+        #startBtn {
+            font-size: 14px;
+        }
+        .container .image-cont {
+            border-radius: 5px;
+            padding: 10px;
+            max-height: 90%;
+            width: 100%;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: zoomIn 1s ease-in-out;
+        }
+        .container #downloadCard .image-cont {
+            padding: 0px;
+            width: fit-content;
+            background-image: url("https://thumbs.dreamstime.com/b/transparent-designer-must-have-fake-background-39672616.jpg");
+            background-size: contain;
+        }
+        .container #downloadCard .image-after {
+            max-height: 100%;
+            width: auto;
+            border-radius: 5px;
+            z-index: 1;
+        }
+        .container #downloadCard .image-before {
+            max-width: 20%;
+            height: auto;
+            border-radius: 5px;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            z-index: 2;
+        }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Remove Background</h1>
+        
+        <!-- Add Card -->
+        <div class="card" id="addCard">
+            <p>Choose an image to remove its background:</p>
+            <button>
+                <input type="file" id="fileInput" accept="image/*">
+                Upload Image
+            </button>
+        </div>
+        
+        <!-- Display Card -->
+        <div class="card" id="displayCard" style="display: none;">
+            <p>Original Image:</p>
+            <img id="display-img" alt="Uploaded Image">
+            <button id="startBtn">Remove Background</button>
+        </div>
+
+        <!-- Download Card -->
+        <div class="card" id="downloadCard" style="display: none;">
+            <div class="image-cont">
+                <img class="image-before" alt="Before" />
+                <img class="image-after" alt="Processed Image" />
+            </div>
+            <a id="downloadHref" download="image.png">
+                <button>Download Image</button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let addCard = document.getElementById("addCard");
+        let displayCard = document.getElementById("displayCard");
+        let downloadCard = document.getElementById("downloadCard");
+        let fileInput = document.getElementById("fileInput");
+        let imageBefore = document.getElementById("display-img");
+        let startBtn = document.getElementById("startBtn");
+        let imageAfter = document.querySelector(".image-after");
+        let imageBeforeSM = document.querySelector(".image-before");
+        let downloadHref = document.getElementById("downloadHref");
+
+        const reader = new FileReader();
+        let file = null;
+
+        const API_URL = "https://api.remove.bg/v1.0/removebg";
+        const API_KEY = "MKcutZL9EBkjFmhEEtjkggqP";  
+
+        const activeScreen = (screen) => {
+            addCard.style.display = "none";
+            displayCard.style.display = "none";
+            downloadCard.style.display = "none";
+            screen.style.display = "flex";
+        };
+
+        activeScreen(addCard);
+
+        fileInput.addEventListener("input", () => {
+            file = fileInput.files[0];
+            reader.readAsDataURL(file);
+            reader.onloadend = () => {
+                imageBefore.src = reader.result;
+                imageBeforeSM.src = reader.result;
+            };
+            activeScreen(displayCard);
+        });
+
+        startBtn.addEventListener("click", () => {
+            if (!file) {
+                alert("Please upload an image first!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("image_file", file);
+            
+            fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "X-Api-Key": API_KEY,
+                },
+                body: formData,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to remove background");
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                reader.readAsDataURL(blob);
+                reader.onloadend = () => {
+                    imageAfter.src = reader.result;
+                    downloadHref.setAttribute("href", reader.result);
+                    downloadHref.setAttribute("download", "image_without_bg.png");
+                    activeScreen(downloadCard);
+                };
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Error processing the image. Please try again.");
+            });
+        });
+    </script>
+</body>
+</html>
